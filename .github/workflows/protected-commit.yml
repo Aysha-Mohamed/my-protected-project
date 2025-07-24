@@ -1,4 +1,4 @@
-name: Protected File Commit
+name: Submit Blog Post
 
 on:
   workflow_dispatch:
@@ -6,43 +6,49 @@ on:
       authToken:
         description: 'Password or token'
         required: true
-      fileContent:
-        description: 'Content to write into the file'
+      blogTitle:
+        description: 'Blog title'
         required: true
-      fileName:
-        description: 'Name of the file to create'
-        required: false
-        default: 'generated.txt'
-        
+      blogContent:
+        description: 'Blog body text'
+        required: true
+
 permissions:
   contents: write
-  
+
 jobs:
-  protected-commit:
+  blog-commit:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repo
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Validate auth token
+      - name: Validate token
         run: |
           if [[ "${{ inputs.authToken }}" != "${{ secrets.AUTHORIZED_TOKEN }}" ]]; then
-            echo "❌ Invalid token."
+            echo "Invalid token."
             exit 1
           fi
 
-      - name: Create file
+      - name: Convert blog to HTML and save to file
         run: |
-          echo "${{ inputs.fileContent }}" > "${{ inputs.fileName }}"
-          echo "✅ File created: ${{ inputs.fileName }}"
+          safeTitle=$(echo "${{ inputs.blogTitle }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')
+          filePath="blogs/${safeTitle}.html"
 
-      - name: Configure Git
+          mkdir -p blogs
+          echo "<html><head><title>${{ inputs.blogTitle }}</title></head><body>" > "$filePath"
+          echo "<h1>${{ inputs.blogTitle }}</h1>" >> "$filePath"
+          echo "<p>${{ inputs.blogContent }}" | sed 's/$/<\/p>/' >> "$filePath"
+          echo "</body></html>" >> "$filePath"
+
+          echo "Blog saved to $filePath"
+
+      - name: Commit & push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Commit file
-        run: |
-          git add "${{ inputs.fileName }}"
-          git commit -m "Add file from workflow"
-          git push
+          git add blogs/*.html
+          git commit -m "Add blog: ${{ inputs.blogTitle }}"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
