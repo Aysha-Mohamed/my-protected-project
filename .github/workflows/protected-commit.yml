@@ -1,0 +1,45 @@
+name: Protected File Commit
+
+on:
+  workflow_dispatch:
+    inputs:
+      authToken:
+        description: 'Password or token'
+        required: true
+      fileContent:
+        description: 'Content to write into the file'
+        required: true
+      fileName:
+        description: 'Name of the file to create'
+        required: false
+        default: 'generated.txt'
+
+jobs:
+  protected-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Validate auth token
+        run: |
+          if [[ "${{ inputs.authToken }}" != "${{ secrets.AUTHORIZED_TOKEN }}" ]]; then
+            echo "❌ Invalid token."
+            exit 1
+          fi
+
+      - name: Create file
+        run: |
+          echo "${{ inputs.fileContent }}" > "${{ inputs.fileName }}"
+          echo "✅ File created: ${{ inputs.fileName }}"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit file
+        run: |
+          git add "${{ inputs.fileName }}"
+          git commit -m "Add file from workflow"
+          git push
