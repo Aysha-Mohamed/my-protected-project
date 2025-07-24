@@ -13,7 +13,10 @@ on:
         description: 'Name of the file to create'
         required: false
         default: 'generated.txt'
-
+        
+permissions:
+  contents: write
+  
 jobs:
   protected-commit:
     runs-on: ubuntu-latest
