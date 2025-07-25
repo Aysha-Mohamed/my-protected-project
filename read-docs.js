@@ -2,12 +2,14 @@ const fs = require('fs');
 const { google } = require('googleapis');
 
 async function main() {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: 'key.json', // This file is created by your GitHub Action
+  const { JWT } = require('google-auth-library');
+
+  const auth = new JWT({
+    keyFile: 'key.json',
     scopes: [
       'https://www.googleapis.com/auth/drive.readonly',
-      'https://www.googleapis.com/auth/documents.readonly'
-    ]
+      'https://www.googleapis.com/auth/documents.readonly',
+    ],
   });
 
   const drive = google.drive({ version: 'v3', auth });
