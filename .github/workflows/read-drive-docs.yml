@@ -18,9 +18,8 @@ jobs:
       - name: Install dependencies
         run: npm install googleapis
 
-      - name: Create service account credentials file
-        run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > key.json
+      - name: Decode service account key
+        run: echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY_B64 }}" | base64 -d > key.json
 
       - name: Run script to read docs
         run: node read-docs.js
