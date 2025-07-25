@@ -37,6 +37,7 @@ async function main() {
     console.log(`📝 Last Modified: ${file.modifiedTime}`);
 
     const doc = await docs.documents.get({ documentId: file.id });
+    console.log('doc content', doc.data.body.content);
 
     const content = doc.data.body.content
       .map(el =>
