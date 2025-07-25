@@ -38,6 +38,9 @@ async function main() {
 
     const doc = await docs.documents.get({ documentId: file.id });
     console.log('doc content', doc.data.body.content);
+    console.log('string',JSON.stringify(doc.data.body.content, null, 2)); 
+
+    
 
     const content = doc.data.body.content
       .map(el =>
