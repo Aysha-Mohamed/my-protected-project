@@ -1,0 +1,26 @@
+name: Read Google Docs from Drive
+
+on:
+  workflow_dispatch:
+
+jobs:
+  read-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install googleapis
+
+      - name: Create service account credentials file
+        run: |
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > key.json
+
+      - name: Run script to read docs
+        run: node read-docs.js
