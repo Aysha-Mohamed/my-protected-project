@@ -32,6 +32,7 @@ async function main() {
   const output = [];
 
   for (const file of res.data.files) {
+    console.log('id', file.id);
     console.log(`\n📄 ${file.name}`);
     console.log(`🗓️  Created: ${file.createdTime}`);
     console.log(`📝 Last Modified: ${file.modifiedTime}`);
