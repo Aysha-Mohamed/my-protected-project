@@ -14,10 +14,10 @@ async function main() {
   const drive = google.drive({ version: 'v3', auth });
   const docs = google.docs({ version: 'v1', auth });
 
-  const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
+ const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
 
   const res = await drive.files.list({
-    q: `'${folderId}' in parents and mimeType='application/vnd.google-apps.document'`,
+    q: '${folderId}' in parents and mimeType='application/vnd.google-apps.document',
     fields: 'files(id, name, createdTime, modifiedTime)',
   });
 
@@ -29,54 +29,58 @@ async function main() {
   const output = [];
 
   for (const file of res.data.files) {
-    console.log(`📄 Processing: ${file.name}`);
+    console.log(📄 Processing: ${file.name});
 
     const doc = await docs.documents.get({ documentId: file.id });
     const content = doc.data.body.content;
-
-    console.log(JSON.stringify(doc.data.body.content, null, 2));
+    console.log(JSON.stringify(doc.data.body.content, null, 2)); 
 
     let title = '';
-    let titleImage = '';
     let excerpt = '';
     let tags = [];
+    let titleImage = undefined;
 
-    let state = 'title'; // state flow: title -> titleImage -> excerpt -> tags
+    let seenTitle = false;
+    let seenExcerpt = false;
 
     for (const block of content) {
-      if (!block.paragraph) continue;
-
-      const text = block.paragraph.elements
-        .map(e => e.textRun?.content || '')
-        .join('')
-        .trim();
-
-      if (!text) continue;
-
-      if (state === 'title') {
-        title = text;
-        state = 'titleImage';
-        continue;
+      // Handle inline image (optional)
+      if (block.inlineObjectElement && !titleImage) {
+        const inlineId = block.inlineObjectElement.inlineObjectId;
+        const inlineObj = doc.data.inlineObjects?.[inlineId];
+        const sourceUri =
+          inlineObj?.inlineObjectProperties?.embeddedObject?.imageProperties
+            ?.contentUri;
+        if (sourceUri) {
+          titleImage = sourceUri;
+        }
       }
 
-      if (state === 'titleImage' && text.startsWith('http')) {
-        titleImage = text;
-        state = 'excerpt';
-        continue;
-      }
+      if (block.paragraph) {
+        const text = block.paragraph.elements
+          .map(e => e.textRun?.content || '')
+          .join('')
+          .trim();
 
-      if (state === 'excerpt') {
-        excerpt = text;
-        state = 'tags';
-        continue;
-      }
+        if (!seenTitle && text) {
+          title = text;
+          seenTitle = true;
+          continue;
+        }
 
-      if (state === 'tags' && text.toLowerCase().startsWith('tags:')) {
-        tags = text
-          .substring(5)
-          .split(',')
-          .map(t => t.trim())
-          .filter(Boolean);
+        if (seenTitle && !seenExcerpt && text) {
+          excerpt = text;
+          seenExcerpt = true;
+          continue;
+        }
+
+        if (text.toLowerCase().startsWith('tags:')) {
+          tags = text
+            .substring(5)
+            .split(',')
+            .map(t => t.trim())
+            .filter(Boolean);
+        }
       }
     }
 
