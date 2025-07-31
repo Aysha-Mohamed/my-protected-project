@@ -2,20 +2,11 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
-function findFirstLinkInParagraph(para) {
-  if (!para || !para.elements) return null;
-  for (const el of para.elements) {
-    const url = el.textRun?.link?.url;
-    if (url) return url;
-  }
-  return null;
-}
-
-function parseGoogleDoc(doc) {
+function parseGoogleDoc(jsonData) {
   const result = {
-    id: doc.documentId || "fileid",
-    createdAt: doc.createdTime || "",
-    modifiedAt: doc.modifiedTime || "",
+    id: jsonData.documentId || "",       // from assigned metadata
+    createdAt: jsonData.createdTime || "",
+    modifiedAt: jsonData.modifiedTime || "",
     title: "",
     titleImage: "",
     excerpt: "",
@@ -23,7 +14,7 @@ function parseGoogleDoc(doc) {
     body: []
   };
 
-  const content = doc.body.content;
+  const content = jsonData.body.content;
   let state = "metadata";
   let currentSection = null;
   const paragraphBuffer = [];
@@ -32,23 +23,37 @@ function parseGoogleDoc(doc) {
     const para = element.paragraph;
     if (!para) continue;
 
-    const text = para.elements.map(e => e.textRun?.content || "").join("");
+    const text = para.elements
+      .map(e => e.textRun?.content || "")
+      .join("");
     const namedStyle = para.paragraphStyle?.namedStyleType || "";
+
     if (text.trim() === "") continue;
 
-    // Find link anywhere in paragraph elements
-    const url = findFirstLinkInParagraph(para);
+    // Helper to get URL from paragraph elements if any
+    function getUrlFromPara(para) {
+      for (const el of para.elements) {
+        if (el.textRun?.link?.url) {
+          return el.textRun.link.url;
+        }
+      }
+      return null;
+    }
 
-    const isCustomListItem = text.startsWith("●  \t");
+    // Detect list item: starts with "● \t"
+    const isListItem = text.trim().startsWith("● \t");
 
-    // ===== METADATA =====
+    // ===== METADATA SECTION =====
     if (state === "metadata") {
       if (namedStyle === "TITLE" && !result.title) {
         result.title = text.trim();
       } else if (text.toLowerCase().startsWith("tags:")) {
-        result.tags = text.substring("tags:".length).split(",").map(t => t.trim());
-      } else if (url) {
-        result.titleImage = url;
+        result.tags = text
+          .substring("tags:".length)
+          .split(",")
+          .map(tag => tag.trim());
+      } else if (getUrlFromPara(para)) {
+        result.titleImage = getUrlFromPara(para);
       } else {
         paragraphBuffer.push(text.trim());
       }
@@ -61,8 +66,8 @@ function parseGoogleDoc(doc) {
       }
     }
 
-    // ===== BODY =====
-    else if (state === "body") {
+    // ===== BODY SECTION =====
+    if (state === "body") {
       if (namedStyle === "HEADING_1") {
         if (currentSection) {
           result.body.push(currentSection);
@@ -71,22 +76,20 @@ function parseGoogleDoc(doc) {
           heading: text.trim(),
           content: []
         };
-      } else if (
-        url &&
-        text.trim().split(/\s+/).length <= 3
-      ) {
+      } else if (getUrlFromPara(para) && text.trim().split(/\s+/).length <= 3) {
+        const url = getUrlFromPara(para);
         currentSection.content.push({ type: "image", data: url });
-      } else if (para.bullet || isCustomListItem) {
-        // List item handling
+      } else if (isListItem) {
+        const itemText = text.trim().substring(2).trim(); // remove "● \t"
         if (
           currentSection.content.length &&
           currentSection.content[currentSection.content.length - 1].type === "list"
         ) {
-          currentSection.content[currentSection.content.length - 1].data.push(text.trim());
+          currentSection.content[currentSection.content.length - 1].data.push(itemText);
         } else {
           currentSection.content.push({
             type: "list",
-            data: [text.trim()]
+            data: [itemText]
           });
         }
       } else {
@@ -114,7 +117,7 @@ async function main() {
   const drive = google.drive({ version: 'v3', auth });
   const docs = google.docs({ version: 'v1', auth });
 
-  const folderId = 'YOUR_FOLDER_ID_HERE';
+  const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
 
   const res = await drive.files.list({
     q: `('${folderId}' in parents and mimeType='application/vnd.google-apps.document')`,
@@ -130,13 +133,14 @@ async function main() {
     console.log(`📄 Processing: ${file.name}`);
 
     const doc = await docs.documents.get({ documentId: file.id });
-    // Inject metadata timestamps into doc object for parsing
-    doc.data.documentId = file.id;
-    doc.data.createdTime = file.createdTime;
-    doc.data.modifiedTime = file.modifiedTime;
+
+    // Assign metadata here before parsing
+    doc.documentId = file.id;
+    doc.createdTime = file.createdTime;
+    doc.modifiedTime = file.modifiedTime;
 
     const parsed = parseGoogleDoc(doc.data);
-    console.log(JSON.stringify(parsed, null, 2));
+    console.log('Parsed document:', JSON.stringify(parsed, null, 2));
   }
 }
 
