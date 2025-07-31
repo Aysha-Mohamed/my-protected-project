@@ -16,10 +16,10 @@ async function main() {
 
  const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
 
-  const res = await drive.files.list({
-    q: '${folderId}' in parents and mimeType='application/vnd.google-apps.document',
-    fields: 'files(id, name, createdTime, modifiedTime)',
-  });
+ const res = await drive.files.list({
+  q: `('${folderId}' in parents and mimeType='application/vnd.google-apps.document')`,
+  fields: 'files(id, name, createdTime, modifiedTime)',
+});
 
   if (!res.data.files.length) {
     console.log('📭 No Google Docs found in the folder.');
