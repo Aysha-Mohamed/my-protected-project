@@ -129,6 +129,7 @@ async function main() {
 
     const v = parseGoogleDoc(doc.data);
     console.log('DEBUG', JSON.stringify(v));
+  }
 }
 
 main().catch(err => {
