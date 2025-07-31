@@ -4,7 +4,7 @@ const { JWT } = require('google-auth-library');
 
 function parseGoogleDoc(jsonData) {
   const result = {
-    id: jsonData.documentId || "",       
+    id: jsonData.documentId || "",
     createdAt: jsonData.createdTime || "",
     modifiedAt: jsonData.modifiedTime || "",
     title: "",
@@ -19,11 +19,10 @@ function parseGoogleDoc(jsonData) {
   let currentSection = null;
   const paragraphBuffer = [];
 
-  // Helper to get URL from paragraph elements if any
   function getUrlFromPara(para) {
     for (const el of para.elements) {
-      if (el.textRun?.link?.url) {
-        return el.textRun.link.url;
+      if (el.textRun?.textStyle?.link?.url) {
+        return el.textRun.textStyle.link.url;
       }
     }
     return null;
@@ -40,10 +39,8 @@ function parseGoogleDoc(jsonData) {
 
     if (text.trim() === "") continue;
 
-    // Detect list item: starts exactly with "●  \t"
     const isListItem = text.startsWith("●  \t");
 
-    // ===== METADATA SECTION =====
     if (state === "metadata") {
       if (namedStyle === "TITLE" && !result.title) {
         result.title = text.trim();
@@ -66,7 +63,6 @@ function parseGoogleDoc(jsonData) {
       }
     }
 
-    // ===== BODY SECTION =====
     if (state === "body") {
       if (namedStyle === "HEADING_1") {
         if (currentSection) {
@@ -77,7 +73,6 @@ function parseGoogleDoc(jsonData) {
           content: []
         };
       } else if (getUrlFromPara(para) && text.trim().split(/\s+/).length <= 3) {
-        // This paragraph is basically an image link
         const url = getUrlFromPara(para);
         currentSection.content.push({ type: "image", data: url });
       } else if (isListItem) {
@@ -105,6 +100,7 @@ function parseGoogleDoc(jsonData) {
 
   return result;
 }
+
 
 async function main() {
   const auth = new JWT({
