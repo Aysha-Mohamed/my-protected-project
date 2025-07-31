@@ -125,7 +125,7 @@ async function main() {
 
     const doc = await docs.documents.get({ documentId: file.id });
     const content = doc.data.body.content;
-    console.log(JSON.stringify(doc.data.body.content, null, 2));
+    // console.log(JSON.stringify(doc.data.body.content, null, 2));
 
     const v = parseGoogleDoc(doc.data);
     console.log('DEBUG', JSON.stringify(v));
