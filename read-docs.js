@@ -2,21 +2,9 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
-function getUrlFromParagraph(para) {
-  if (!para || !para.elements || para.elements.length === 0) return null;
-
-  // Check all elements for a link inside textRun.textStyle.link.url
-  for (const elem of para.elements) {
-    const url = elem.textRun?.textStyle?.link?.url;
-    if (url) return url;
-  }
-
-  return null;
-}
-
 function parseGoogleDoc(doc) {
   const result = {
-    id: doc.documentId || "fileid", // Use doc id if available
+    id: doc.documentId || "fileid",  // fill from doc id
     createdAt: doc.createdTime || "",
     modifiedAt: doc.modifiedTime || "",
     title: "",
@@ -35,12 +23,21 @@ function parseGoogleDoc(doc) {
     const para = element.paragraph;
     if (!para) continue;
 
+    // Join all textRun contents in this paragraph
     const text = para.elements
       .map(e => e.textRun?.content || "")
       .join("");
+
     const namedStyle = para.paragraphStyle?.namedStyleType || "";
 
     if (text.trim() === "") continue;
+
+    // Extract URL from the first textRun link if available
+    const firstElement = para.elements[0];
+    const url = firstElement?.textRun?.link?.url;
+
+    // Detect if paragraph starts with bullet "●  \t"
+    const isCustomListItem = text.startsWith("●  \t");
 
     // ===== METADATA SECTION =====
     if (state === "metadata") {
@@ -51,13 +48,10 @@ function parseGoogleDoc(doc) {
           .substring("tags:".length)
           .split(",")
           .map(tag => tag.trim());
+      } else if (url) {
+        result.titleImage = url;
       } else {
-        const url = getUrlFromParagraph(para);
-        if (url && !result.titleImage) {
-          result.titleImage = url;
-        } else {
-          paragraphBuffer.push(text.trim());
-        }
+        paragraphBuffer.push(text.trim());
       }
 
       if (namedStyle === "HEADING_1") {
@@ -78,26 +72,28 @@ function parseGoogleDoc(doc) {
           heading: text.trim(),
           content: []
         };
-      } else {
-        const url = getUrlFromParagraph(para);
-        if (url && text.trim().split(/\s+/).length <= 3) {
-          // Treat as image if it's a short text with link
-          currentSection.content.push({ type: "image", data: url });
-        } else if (para.bullet) {
-          if (
-            currentSection.content.length &&
-            currentSection.content[currentSection.content.length - 1].type === "list"
-          ) {
-            currentSection.content[currentSection.content.length - 1].data.push(text.trim());
-          } else {
-            currentSection.content.push({
-              type: "list",
-              data: [text.trim()]
-            });
-          }
+      } else if (
+        url &&
+        text.trim().split(/\s+/).length <= 3
+      ) {
+        // Single-line link → treat as image
+        currentSection.content.push({ type: "image", data: url });
+      } else if (para.bullet || isCustomListItem) {
+        const listItemText = isCustomListItem ? text.slice(4).trim() : text.trim();
+
+        if (
+          currentSection.content.length &&
+          currentSection.content[currentSection.content.length - 1].type === "list"
+        ) {
+          currentSection.content[currentSection.content.length - 1].data.push(listItemText);
         } else {
-          currentSection.content.push({ type: "paragraph", data: text.trim() });
+          currentSection.content.push({
+            type: "list",
+            data: [listItemText]
+          });
         }
+      } else {
+        currentSection.content.push({ type: "paragraph", data: text.trim() });
       }
     }
   }
@@ -133,22 +129,18 @@ async function main() {
     return;
   }
 
-  const output = [];
-
   for (const file of res.data.files) {
     console.log(`📄 Processing: ${file.name}`);
 
     const doc = await docs.documents.get({ documentId: file.id });
 
-    // Attach metadata from Drive API response to doc object for parsing
+    // Inject metadata (id, createdTime, modifiedTime) into doc object for parser convenience
     doc.documentId = file.id;
     doc.createdTime = file.createdTime;
     doc.modifiedTime = file.modifiedTime;
 
     const parsed = parseGoogleDoc(doc.data);
     console.log('Parsed Document:', JSON.stringify(parsed, null, 2));
-
-    output.push(parsed);
   }
 }
 
