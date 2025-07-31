@@ -22,14 +22,14 @@ async function main() {
 });
 
   if (!res.data.files.length) {
-    console.log('📭 No Google Docs found in the folder.');
+    console.log('No Google Docs found in the folder.');
     return;
   }
 
   const output = [];
 
   for (const file of res.data.files) {
-    console.log(📄 Processing: ${file.name});
+   console.log(`📄 Processing: ${file.name}`);
 
     const doc = await docs.documents.get({ documentId: file.id });
     const content = doc.data.body.content;
