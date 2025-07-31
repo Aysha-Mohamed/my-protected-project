@@ -4,7 +4,7 @@ const { JWT } = require('google-auth-library');
 
 function parseGoogleDoc(jsonData) {
   const result = {
-    id: jsonData.documentId || "",       // from assigned metadata
+    id: jsonData.documentId || "",       
     createdAt: jsonData.createdTime || "",
     modifiedAt: jsonData.modifiedTime || "",
     title: "",
@@ -19,6 +19,16 @@ function parseGoogleDoc(jsonData) {
   let currentSection = null;
   const paragraphBuffer = [];
 
+  // Helper to get URL from paragraph elements if any
+  function getUrlFromPara(para) {
+    for (const el of para.elements) {
+      if (el.textRun?.link?.url) {
+        return el.textRun.link.url;
+      }
+    }
+    return null;
+  }
+
   for (const element of content) {
     const para = element.paragraph;
     if (!para) continue;
@@ -30,18 +40,8 @@ function parseGoogleDoc(jsonData) {
 
     if (text.trim() === "") continue;
 
-    // Helper to get URL from paragraph elements if any
-    function getUrlFromPara(para) {
-      for (const el of para.elements) {
-        if (el.textRun?.link?.url) {
-          return el.textRun.link.url;
-        }
-      }
-      return null;
-    }
-
-    // Detect list item: starts with "● \t"
-    const isListItem = text.trim().startsWith("● \t");
+    // Detect list item: starts exactly with "●  \t"
+    const isListItem = text.startsWith("●  \t");
 
     // ===== METADATA SECTION =====
     if (state === "metadata") {
@@ -77,10 +77,11 @@ function parseGoogleDoc(jsonData) {
           content: []
         };
       } else if (getUrlFromPara(para) && text.trim().split(/\s+/).length <= 3) {
+        // This paragraph is basically an image link
         const url = getUrlFromPara(para);
         currentSection.content.push({ type: "image", data: url });
       } else if (isListItem) {
-        const itemText = text.trim().substring(2).trim(); // remove "● \t"
+        const itemText = text.substring("●  \t".length).trim();
         if (
           currentSection.content.length &&
           currentSection.content[currentSection.content.length - 1].type === "list"
