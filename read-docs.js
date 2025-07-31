@@ -2,11 +2,23 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
-function parseGoogleDoc(jsonData) {
+function getUrlFromParagraph(para) {
+  if (!para || !para.elements || para.elements.length === 0) return null;
+
+  // Check all elements for a link inside textRun.textStyle.link.url
+  for (const elem of para.elements) {
+    const url = elem.textRun?.textStyle?.link?.url;
+    if (url) return url;
+  }
+
+  return null;
+}
+
+function parseGoogleDoc(doc) {
   const result = {
-    id: "fileid", // fill in separately
-    createdAt: "",
-    modifiedAt: "",
+    id: doc.documentId || "fileid", // Use doc id if available
+    createdAt: doc.createdTime || "",
+    modifiedAt: doc.modifiedTime || "",
     title: "",
     titleImage: "",
     excerpt: "",
@@ -14,7 +26,7 @@ function parseGoogleDoc(jsonData) {
     body: []
   };
 
-  const content = jsonData.body.content;
+  const content = doc.body.content;
   let state = "metadata";
   let currentSection = null;
   const paragraphBuffer = [];
@@ -39,10 +51,13 @@ function parseGoogleDoc(jsonData) {
           .substring("tags:".length)
           .split(",")
           .map(tag => tag.trim());
-      } else if (para.elements[0].textRun?.link) {
-        result.titleImage = para.elements[0].textRun.link.url;
       } else {
-        paragraphBuffer.push(text.trim());
+        const url = getUrlFromParagraph(para);
+        if (url && !result.titleImage) {
+          result.titleImage = url;
+        } else {
+          paragraphBuffer.push(text.trim());
+        }
       }
 
       if (namedStyle === "HEADING_1") {
@@ -63,26 +78,26 @@ function parseGoogleDoc(jsonData) {
           heading: text.trim(),
           content: []
         };
-      } else if (
-        para.elements[0].textRun?.link &&
-        text.trim().split(/\s+/).length <= 3
-      ) {
-        const url = para.elements[0].textRun.link.url;
-        currentSection.content.push({ type: "image", data: url });
-      } else if (para.bullet) {
-        if (
-          currentSection.content.length &&
-          currentSection.content[currentSection.content.length - 1].type === "list"
-        ) {
-          currentSection.content[currentSection.content.length - 1].data.push(text.trim());
-        } else {
-          currentSection.content.push({
-            type: "list",
-            data: [text.trim()]
-          });
-        }
       } else {
-        currentSection.content.push({ type: "paragraph", data: text.trim() });
+        const url = getUrlFromParagraph(para);
+        if (url && text.trim().split(/\s+/).length <= 3) {
+          // Treat as image if it's a short text with link
+          currentSection.content.push({ type: "image", data: url });
+        } else if (para.bullet) {
+          if (
+            currentSection.content.length &&
+            currentSection.content[currentSection.content.length - 1].type === "list"
+          ) {
+            currentSection.content[currentSection.content.length - 1].data.push(text.trim());
+          } else {
+            currentSection.content.push({
+              type: "list",
+              data: [text.trim()]
+            });
+          }
+        } else {
+          currentSection.content.push({ type: "paragraph", data: text.trim() });
+        }
       }
     }
   }
@@ -106,12 +121,12 @@ async function main() {
   const drive = google.drive({ version: 'v3', auth });
   const docs = google.docs({ version: 'v1', auth });
 
- const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
+  const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
 
- const res = await drive.files.list({
-  q: `('${folderId}' in parents and mimeType='application/vnd.google-apps.document')`,
-  fields: 'files(id, name, createdTime, modifiedTime)',
-});
+  const res = await drive.files.list({
+    q: `('${folderId}' in parents and mimeType='application/vnd.google-apps.document')`,
+    fields: 'files(id, name, createdTime, modifiedTime)',
+  });
 
   if (!res.data.files.length) {
     console.log('No Google Docs found in the folder.');
@@ -124,11 +139,16 @@ async function main() {
     console.log(`📄 Processing: ${file.name}`);
 
     const doc = await docs.documents.get({ documentId: file.id });
-    const content = doc.data.body.content;
-    // console.log(JSON.stringify(doc.data.body.content, null, 2));
 
-    const v = parseGoogleDoc(doc.data);
-    console.log('DEBUG', JSON.stringify(v));
+    // Attach metadata from Drive API response to doc object for parsing
+    doc.documentId = file.id;
+    doc.createdTime = file.createdTime;
+    doc.modifiedTime = file.modifiedTime;
+
+    const parsed = parseGoogleDoc(doc.data);
+    console.log('Parsed Document:', JSON.stringify(parsed, null, 2));
+
+    output.push(parsed);
   }
 }
 
