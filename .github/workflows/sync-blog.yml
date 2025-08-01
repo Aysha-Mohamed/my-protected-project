@@ -1,0 +1,25 @@
+name: Sync Blog Posts from Drive
+
+on:
+  workflow_dispatch:
+
+jobs:
+  read-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install googleapis
+
+      - name: Decode service account key
+        run: echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY_B64 }}" | base64 -d > key.json
+
+      - name: Run script to read docs
+        run: node helper/store-posts.js
