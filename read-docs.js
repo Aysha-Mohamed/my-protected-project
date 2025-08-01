@@ -130,7 +130,8 @@ async function main() {
     console.log(`📄 Processing: ${file.name}`);
 
     const doc = await docs.documents.get({ documentId: file.id });
-    console.log('string',JSON.stringify(doc.data.body.content, null, 2)); 
+    // only enable for debug purposes
+    // console.log('string', JSON.stringify(doc.data.body.content, null, 2)); 
 
     // Assign metadata here before parsing
     doc.documentId = file.id;
