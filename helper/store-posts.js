@@ -2,15 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { getBlogPostsJson } = require('./read-posts');
-const { storeImage } = require('./store-drive-image');
+const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 
 (async () => {
   let posts = await getBlogPostsJson();
+  const imgDir = path.join(__dirname, '..', 'blog', 'img');
 
   // TODO: replace google drive urls with local urls
   // loop through the json and for each url (of a google drive image file):
-  // - extract the file id
-  // - download the file if it does not exist already
+  // - extract the file id: extractFileIdFromUrl(url)
+  // - download the file if it does not exist already: storeImage(fileId, imgDir)
   // - replace the google url with a local one
 
   // Sort new data by createdAt
