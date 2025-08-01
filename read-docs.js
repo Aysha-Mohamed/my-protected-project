@@ -39,7 +39,7 @@ function parseGoogleDoc(jsonData) {
 
     if (text.trim() === "") continue;
 
-    const isListItem = text.startsWith("●  \t");
+    const isListItem = para.bullet || text.startsWith("●  \t");
 
     if (state === "metadata") {
       if (namedStyle === "TITLE" && !result.title) {
@@ -76,7 +76,7 @@ function parseGoogleDoc(jsonData) {
         const url = getUrlFromPara(para);
         currentSection.content.push({ type: "image", data: url });
       } else if (isListItem) {
-        const itemText = text.substring("●  \t".length).trim();
+        const itemText = text.startsWith("●  \t") ? text.substring("●  \t".length).trim() : text.trim();
         if (
           currentSection.content.length &&
           currentSection.content[currentSection.content.length - 1].type === "list"
