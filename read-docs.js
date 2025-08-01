@@ -2,11 +2,11 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
-function parseGoogleDoc(jsonData) {
+function parseGoogleDoc(jsonData, file) {
   const result = {
-    id: jsonData.documentId || "",
-    createdAt: jsonData.createdTime || "",
-    modifiedAt: jsonData.modifiedTime || "",
+    id: file.id || "",
+    createdAt: file.createdTime || "",
+    modifiedAt: file.modifiedTime || "",
     title: "",
     titleImage: "",
     excerpt: "",
@@ -133,12 +133,7 @@ async function main() {
     // only enable for debug purposes
     // console.log('string', JSON.stringify(doc.data.body.content, null, 2)); 
 
-    // Assign metadata here before parsing
-    doc.documentId = file.id;
-    doc.createdTime = file.createdTime;
-    doc.modifiedTime = file.modifiedTime;
-
-    const parsed = parseGoogleDoc(doc.data);
+    const parsed = parseGoogleDoc(doc.data, file);
     console.log('Parsed document:', JSON.stringify(parsed, null, 2));
   }
 }
