@@ -21,7 +21,11 @@ jobs:
       - name: Decode service account key
         run: echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY_B64 }}" | base64 -d > key.json
 
-      - name: Run script to read docs
+      - name: Set up git push with token
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+      - name: Run script to read docs
         run: node helper/store-posts.js
