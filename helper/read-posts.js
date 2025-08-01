@@ -135,4 +135,4 @@ async function getBlogPostsJson() {
   return posts;
 }
 
-module.exports = getBlogPostsJson;
+module.exports = { getBlogPostsJson };
