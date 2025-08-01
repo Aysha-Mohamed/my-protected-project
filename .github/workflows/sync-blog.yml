@@ -3,6 +3,9 @@ name: Sync Blog Posts from Drive
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   read-docs:
     runs-on: ubuntu-latest
