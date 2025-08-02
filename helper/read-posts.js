@@ -130,8 +130,7 @@ function parseGoogleDoc(jsonData, file) {
         if (
           links &&
           links.length === 1 &&
-          text === `{${links[0].id}}` &&
-          /^image link$/i.test(links[0].text.trim())
+          text === `{${links[0].id}}`
         ) {
           currentSection.content.push({
             type: "image",
