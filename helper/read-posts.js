@@ -14,6 +14,9 @@ function parseGoogleDoc(jsonData, file) {
   };
 
   const content = jsonData.body.content;
+  // log response
+  console.log(JSON.stringify(content));
+
   let state = "metadata";
   let linkCounter = 1;
   let currentSection = null;
