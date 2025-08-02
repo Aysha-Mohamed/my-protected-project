@@ -56,10 +56,10 @@
         "content": [
           {
             "type": "paragraph",
-            "data": "Caring for a cat involves more than food and water. They need mental stimulation, regular vet checkups, and lots of affection.{link2}",
+            "data": "Caring for a cat involves more than food and water. They need mental stimulation, regular vet checkups, and lots of affection.{link1}",
             "links": [
               {
-                "id": "link2",
+                "id": "link1",
                 "text": "link",
                 "url": "http://linkedin.com"
               }
@@ -67,10 +67,10 @@
           },
           {
             "type": "paragraph",
-            "data": "{link3}",
+            "data": "{link1}",
             "links": [
               {
-                "id": "link3",
+                "id": "link1",
                 "text": "Image Link",
                 "url": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-1271172807.jpg?fit=700,700"
               }
@@ -87,10 +87,10 @@
           },
           {
             "type": "paragraph",
-            "data": "{link4}",
+            "data": "{link1}",
             "links": [
               {
-                "id": "link4",
+                "id": "link1",
                 "text": "Google drive Image Link",
                 "url": "https://drive.google.com/file/d/1XbHxRAxV7FMtEg0ozOf7mKvER96NDZzP/view"
               }
