@@ -125,11 +125,25 @@ function parseGoogleDoc(jsonData, file) {
         }
       } else {
         const { text, links } = extractParagraphTextAndLinks(para);
-        const paragraphObj = { type: "paragraph", data: text };
-        if (links) {
-          paragraphObj.links = links;
+        
+        // Check if this is a single {linkX} placeholder and the link text implies it's an image
+        if (
+          links &&
+          links.length === 1 &&
+          text === `{${links[0].id}}` &&
+          /^image link$/i.test(links[0].text.trim())
+        ) {
+          currentSection.content.push({
+            type: "image",
+            data: links[0].url
+          });
+        } else {
+          const paragraphObj = { type: "paragraph", data: text };
+          if (links) {
+            paragraphObj.links = links;
+          }
+          currentSection.content.push(paragraphObj);
         }
-        currentSection.content.push(paragraphObj);
       }
     }
   }
