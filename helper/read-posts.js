@@ -15,7 +15,6 @@ function parseGoogleDoc(jsonData, file) {
 
   const content = jsonData.body.content;
   let state = "metadata";
-  let linkCounter = 1;
   let currentSection = null;
   const paragraphBuffer = [];
 
@@ -30,38 +29,65 @@ function parseGoogleDoc(jsonData, file) {
 
   function isFullParagraphLink(para) {
     const elements = para.elements;
-    if (
+    return (
       elements.length === 1 &&
       elements[0].textRun?.textStyle?.link?.url &&
-      elements[0].textRun?.content?.trim()
-    ) {
-      return true;
+      elements[0].textRun.content?.trim() === elements[0].textRun.content
+    );
+  }
+
+  function extractParagraphTextAndLinks(para) {
+    let finalText = "";
+    const links = [];
+    let hasLinks = false;
+    let linkCounter = 1;
+
+    for (const el of para.elements) {
+      const run = el.textRun;
+      if (!run || !run.content) continue;
+
+      const textSegment = run.content.replace(/\n$/, "");
+      const link = run.textStyle?.link?.url;
+
+      if (link) {
+        const linkId = `link${linkCounter++}`;
+        finalText += `{${linkId}}`;
+        links.push({
+          id: linkId,
+          text: textSegment.trim(),
+          url: link
+        });
+        hasLinks = true;
+      } else {
+        finalText += textSegment;
+      }
     }
-    return false;
+
+    return { text: finalText.trim(), links: hasLinks ? links : null };
   }
 
   for (const element of content) {
     const para = element.paragraph;
     if (!para) continue;
 
-    const text = para.elements.map(e => e.textRun?.content || "").join("");
     const namedStyle = para.paragraphStyle?.namedStyleType || "";
-    if (text.trim() === "") continue;
+    const rawText = para.elements.map(e => e.textRun?.content || "").join("").trim();
+    if (!rawText) continue;
 
-    const isListItem = para.bullet || text.startsWith("●  \t");
+    const isListItem = para.bullet || rawText.startsWith("●  \t");
 
     if (state === "metadata") {
       if (namedStyle === "TITLE" && !result.title) {
-        result.title = text.trim();
-      } else if (text.toLowerCase().startsWith("tags:")) {
-        result.tags = text
+        result.title = rawText;
+      } else if (rawText.toLowerCase().startsWith("tags:")) {
+        result.tags = rawText
           .substring("tags:".length)
           .split(",")
           .map(tag => tag.trim());
       } else if (getUrlFromPara(para)) {
         result.titleImage = getUrlFromPara(para);
       } else {
-        paragraphBuffer.push(text.trim());
+        paragraphBuffer.push(rawText);
       }
 
       if (namedStyle === "HEADING_1") {
@@ -78,14 +104,14 @@ function parseGoogleDoc(jsonData, file) {
           result.body.push(currentSection);
         }
         currentSection = {
-          heading: text.trim(),
+          heading: rawText,
           content: []
         };
       } else if (isFullParagraphLink(para)) {
         const url = para.elements[0].textRun.textStyle.link.url;
         currentSection.content.push({ type: "image", data: url });
       } else if (isListItem) {
-        const itemText = text.startsWith("●  \t") ? text.substring("●  \t".length).trim() : text.trim();
+        const itemText = rawText.startsWith("●  \t") ? rawText.substring("●  \t".length).trim() : rawText;
         if (
           currentSection.content.length &&
           currentSection.content[currentSection.content.length - 1].type === "list"
@@ -98,44 +124,12 @@ function parseGoogleDoc(jsonData, file) {
           });
         }
       } else {
-        // Handle inline links
-        let hasLinks = false;
-        let finalText = "";
-        let links = [];
-
-        for (const el of para.elements) {
-          const run = el.textRun;
-          if (!run || !run.content) continue;
-
-          const textSegment = run.content.replace(/\n$/, "");
-          const link = run.textStyle?.link?.url;
-
-          if (link) {
-            const linkId = `link${linkCounter++}`;
-            finalText += `{${linkId}}`;
-            links.push({
-              id: linkId,
-              text: textSegment.trim(),
-              url: link
-            });
-            hasLinks = true;
-          } else {
-            finalText += textSegment;
-          }
+        const { text, links } = extractParagraphTextAndLinks(para);
+        const paragraphObj = { type: "paragraph", data: text };
+        if (links) {
+          paragraphObj.links = links;
         }
-
-        if (hasLinks) {
-          currentSection.content.push({
-            type: "paragraph",
-            data: finalText.trim(),
-            links
-          });
-        } else {
-          currentSection.content.push({
-            type: "paragraph",
-            data: text.trim()
-          });
-        }
+        currentSection.content.push(paragraphObj);
       }
     }
   }
