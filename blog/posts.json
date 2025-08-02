@@ -21,15 +21,8 @@
             "data": "Cats are often seen as low-maintenance pets compared to dogs. They don’t require daily walks and can entertain themselves for hours. Their quiet purring, soft fur, and independent nature make them ideal for people with busy lifestyles."
           },
           {
-            "type": "paragraph",
-            "data": "{link1}",
-            "links": [
-              {
-                "id": "link1",
-                "text": "Image link",
-                "url": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-146242247-scaled.jpg?fit=700,700"
-              }
-            ]
+            "type": "image",
+            "data": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-146242247-scaled.jpg?fit=700,700"
           }
         ]
       },
@@ -66,15 +59,8 @@
             ]
           },
           {
-            "type": "paragraph",
-            "data": "{link1}",
-            "links": [
-              {
-                "id": "link1",
-                "text": "Image Link",
-                "url": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-1271172807.jpg?fit=700,700"
-              }
-            ]
+            "type": "image",
+            "data": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-1271172807.jpg?fit=700,700"
           },
           {
             "type": "list",
