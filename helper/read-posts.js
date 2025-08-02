@@ -1,3 +1,6 @@
+const { google } = require('googleapis');
+const { JWT } = require('google-auth-library');
+
 function parseGoogleDoc(jsonData, file) {
   const result = {
     id: file.id || "",
@@ -143,3 +146,40 @@ function parseGoogleDoc(jsonData, file) {
 
   return result;
 }
+
+async function getBlogPostsJson() {
+  const auth = new JWT({
+    keyFile: 'key.json',
+    scopes: [
+      'https://www.googleapis.com/auth/drive.readonly',
+      'https://www.googleapis.com/auth/documents.readonly',
+    ],
+  });
+
+  const drive = google.drive({ version: 'v3', auth });
+  const docs = google.docs({ version: 'v1', auth });
+
+  const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
+
+  const res = await drive.files.list({
+    q: `('${folderId}' in parents and mimeType='application/vnd.google-apps.document')`,
+    fields: 'files(id, name, createdTime, modifiedTime)',
+  });
+
+  if (!res.data.files.length) {
+    console.warn('No Google Docs found in the folder.');
+    return [];
+  }
+
+  const posts = [];
+
+  for (const file of res.data.files) {
+    const doc = await docs.documents.get({ documentId: file.id });
+    const parsed = parseGoogleDoc(doc.data, file);
+    posts.push(parsed);
+  }
+
+  return posts;
+}
+
+module.exports = { getBlogPostsJson };
