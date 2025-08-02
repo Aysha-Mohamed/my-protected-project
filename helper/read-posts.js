@@ -14,9 +14,6 @@ function parseGoogleDoc(jsonData, file) {
   };
 
   const content = jsonData.body.content;
-  // log response
-  console.log('response', JSON.stringify(doc.data.body.content, null, 2)); 
-
   let state = "metadata";
   let linkCounter = 1;
   let currentSection = null;
@@ -178,6 +175,8 @@ async function getBlogPostsJson() {
 
   for (const file of res.data.files) {
     const doc = await docs.documents.get({ documentId: file.id });
+    // log response
+    console.log('response', JSON.stringify(doc.data.body.content, null, 2)); 
     const parsed = parseGoogleDoc(doc.data, file);
     posts.push(parsed);
   }
