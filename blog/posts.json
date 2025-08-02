@@ -2,7 +2,7 @@
   {
     "id": "1O35lstWkPB0mkx0K3bjKuEQMSH24rRYsU6nltuG-ZXc",
     "createdAt": "2025-07-31T10:14:55.634Z",
-    "modifiedAt": "2025-08-01T14:07:36.172Z",
+    "modifiedAt": "2025-08-02T18:10:30.205Z",
     "title": "The Fascinating World of Cats:",
     "titleImage": "https://www.rd.com/wp-content/uploads/2024/06/50-Photos-of-Cute-Kittens-That-Will-Make-You-Melt_GettyImages-187144066_SSedit_FT.jpg?fit=700,700",
     "excerpt": "Graceful, Curious, and Independent Cats have been loved by people for many years. They are calm, curious, and graceful. Whether they are sleeping in the sun or playing with a toy, cats make people happy and bring peace to homes. Why Cats Make Great Companions",
@@ -21,8 +21,15 @@
             "data": "Cats are often seen as low-maintenance pets compared to dogs. They don’t require daily walks and can entertain themselves for hours. Their quiet purring, soft fur, and independent nature make them ideal for people with busy lifestyles."
           },
           {
-            "type": "image",
-            "data": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-146242247-scaled.jpg?fit=700,700"
+            "type": "paragraph",
+            "data": "{link1}",
+            "links": [
+              {
+                "id": "link1",
+                "text": "Image link",
+                "url": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-146242247-scaled.jpg?fit=700,700"
+              }
+            ]
           }
         ]
       },
@@ -49,11 +56,25 @@
         "content": [
           {
             "type": "paragraph",
-            "data": "Caring for a cat involves more than food and water. They need mental stimulation, regular vet checkups, and lots of affection.link"
+            "data": "Caring for a cat involves more than food and water. They need mental stimulation, regular vet checkups, and lots of affection.{link2}",
+            "links": [
+              {
+                "id": "link2",
+                "text": "link",
+                "url": "http://linkedin.com"
+              }
+            ]
           },
           {
-            "type": "image",
-            "data": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-1271172807.jpg?fit=700,700"
+            "type": "paragraph",
+            "data": "{link3}",
+            "links": [
+              {
+                "id": "link3",
+                "text": "Image Link",
+                "url": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-1271172807.jpg?fit=700,700"
+              }
+            ]
           },
           {
             "type": "list",
@@ -62,6 +83,17 @@
               "Groom",
               "Hair cut",
               "Give food"
+            ]
+          },
+          {
+            "type": "paragraph",
+            "data": "{link4}",
+            "links": [
+              {
+                "id": "link4",
+                "text": "Google drive Image Link",
+                "url": "https://drive.google.com/file/d/1XbHxRAxV7FMtEg0ozOf7mKvER96NDZzP/view"
+              }
             ]
           }
         ]
