@@ -15,7 +15,7 @@ function parseGoogleDoc(jsonData, file) {
 
   const content = jsonData.body.content;
   // log response
-  console.log(JSON.stringify(content));
+  console.log('response', JSON.stringify(doc.data.body.content, null, 2)); 
 
   let state = "metadata";
   let linkCounter = 1;
