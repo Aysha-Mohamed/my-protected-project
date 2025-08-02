@@ -72,15 +72,8 @@
             ]
           },
           {
-            "type": "paragraph",
-            "data": "{link1}",
-            "links": [
-              {
-                "id": "link1",
-                "text": "Google drive Image Link",
-                "url": "https://drive.google.com/file/d/1XbHxRAxV7FMtEg0ozOf7mKvER96NDZzP/view"
-              }
-            ]
+            "type": "image",
+            "data": "https://drive.google.com/file/d/1XbHxRAxV7FMtEg0ozOf7mKvER96NDZzP/view"
           }
         ]
       }
