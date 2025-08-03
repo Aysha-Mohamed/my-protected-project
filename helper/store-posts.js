@@ -6,7 +6,7 @@ const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
-function adjustGoogleDriveImageLinks(posts) {
+async function adjustGoogleDriveImageLinks(posts) {
   const imgDir = path.join(__dirname, '..', 'blog', 'img');
 
   for (const post of posts) {
@@ -42,7 +42,7 @@ function adjustGoogleDriveImageLinks(posts) {
   let posts = await getBlogPostsJson();
   const imgDir = path.join(__dirname, '..', 'blog', 'img');
 
-  adjustGoogleDriveImageLinks(posts);
+  await adjustGoogleDriveImageLinks(posts);
 
   // Sort new data by createdAt
   posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
