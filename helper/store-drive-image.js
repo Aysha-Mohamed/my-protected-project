@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
