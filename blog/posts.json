@@ -1,1 +1,82 @@
-
+[
+  {
+    "id": "1O35lstWkPB0mkx0K3bjKuEQMSH24rRYsU6nltuG-ZXc",
+    "createdAt": "2025-07-31T10:14:55.634Z",
+    "modifiedAt": "2025-08-02T18:10:30.205Z",
+    "title": "The Fascinating World of Cats:",
+    "titleImage": "https://www.rd.com/wp-content/uploads/2024/06/50-Photos-of-Cute-Kittens-That-Will-Make-You-Melt_GettyImages-187144066_SSedit_FT.jpg?fit=700,700",
+    "excerpt": "Graceful, Curious, and Independent Cats have been loved by people for many years. They are calm, curious, and graceful. Whether they are sleeping in the sun or playing with a toy, cats make people happy and bring peace to homes. Why Cats Make Great Companions",
+    "tags": [
+      "Pets",
+      "Cats",
+      "Animal Behaviour",
+      "Lifestyle"
+    ],
+    "body": [
+      {
+        "heading": "Why Cats Make Great Companions",
+        "content": [
+          {
+            "type": "paragraph",
+            "data": "Cats are often seen as low-maintenance pets compared to dogs. They don’t require daily walks and can entertain themselves for hours. Their quiet purring, soft fur, and independent nature make them ideal for people with busy lifestyles."
+          },
+          {
+            "type": "image",
+            "data": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-146242247-scaled.jpg?fit=700,700"
+          }
+        ]
+      },
+      {
+        "heading": "Understanding Cat Behavior",
+        "content": [
+          {
+            "type": "paragraph",
+            "data": "Cat behavior is subtle and sometimes puzzling. Tail flicks, slow blinking, and kneading are just a few ways cats communicate."
+          },
+          {
+            "type": "list",
+            "data": [
+              "Slow blinking = affection",
+              "Tail up = confident and happy",
+              "Hiding = stress or overstimulation",
+              "Kneading = comfort behavior rooted in kittenhood"
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "Caring for Your Cat",
+        "content": [
+          {
+            "type": "paragraph",
+            "data": "Caring for a cat involves more than food and water. They need mental stimulation, regular vet checkups, and lots of affection.{link1}",
+            "links": [
+              {
+                "id": "link1",
+                "text": "link",
+                "url": "http://linkedin.com"
+              }
+            ]
+          },
+          {
+            "type": "image",
+            "data": "https://www.rd.com/wp-content/uploads/2021/04/GettyImages-1271172807.jpg?fit=700,700"
+          },
+          {
+            "type": "list",
+            "data": [
+              "Clean the cats",
+              "Groom",
+              "Hair cut",
+              "Give food"
+            ]
+          },
+          {
+            "type": "image",
+            "data": "/posts/img/1XbHxRAxV7FMtEg0ozOf7mKvER96NDZzP.png"
+          }
+        ]
+      }
+    ]
+  }
+]
