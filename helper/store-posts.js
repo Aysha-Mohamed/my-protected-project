@@ -73,3 +73,13 @@ function adjustGoogleDriveImageLinks(posts) {
     console.log('ℹ️ blog/posts.json is up-to-date — no changes to commit.');
   }
 })();
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', err => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
