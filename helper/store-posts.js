@@ -6,8 +6,8 @@ const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
-async function adjustGoogleDriveImageLinks(posts) {
-  const imgDir = path.join(__dirname, '..', 'blog', 'img');
+async function adjustGoogleDriveImageLinks(posts, blogDir) {
+  const imgDir = path.join(blogDir, 'img');
 
   for (const post of posts) {
     // Process titleImage if it's a Google Drive URL
@@ -40,15 +40,15 @@ async function adjustGoogleDriveImageLinks(posts) {
 
 (async () => {
   let posts = await getBlogPostsJson();
-  const imgDir = path.join(__dirname, '..', 'blog', 'img');
+  const blogDir = path.join(__dirname, '..', 'blog');
 
-  await adjustGoogleDriveImageLinks(posts);
+  await adjustGoogleDriveImageLinks(posts, blogDir);
 
   // Sort new data by createdAt
   posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const newJson = JSON.stringify(posts, null, 2);
-  const outputPath = path.join(__dirname, '..', 'blog', 'posts.json');
+  const outputPath = path.join(blogDir, 'posts.json');
 
   const fileExists = fs.existsSync(outputPath);
   const oldJson = fileExists ? fs.readFileSync(outputPath, 'utf8') : null;
@@ -61,7 +61,7 @@ async function adjustGoogleDriveImageLinks(posts) {
     try {
       execSync('git config user.name "github-actions[bot]"');
       execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
-      execSync(`git add ${outputPath}`);
+      execSync(`git add ${blogDir}`);
       execSync('git commit -m "Update blog/posts.json from Google Docs"');
       execSync('git push');
       console.log('✅ Changes committed and pushed.');
