@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const { getBlogPostsJson } = require('./read-posts');
 const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 
-const HTML_RELATIVE_IMAGE_DIR = '/posts/img');
+const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
 function adjustGoogleDriveImageLinks(posts) {
   const imgDir = path.join(__dirname, '..', 'blog', 'img');
