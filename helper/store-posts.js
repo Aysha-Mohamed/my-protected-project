@@ -4,15 +4,45 @@ const { execSync } = require('child_process');
 const { getBlogPostsJson } = require('./read-posts');
 const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 
+const HTML_RELATIVE_IMAGE_DIR = '/posts/img');
+
+function adjustGoogleDriveImageLinks(posts) {
+  const imgDir = path.join(__dirname, '..', 'blog', 'img');
+
+  for (const post of posts) {
+    // Process titleImage if it's a Google Drive URL
+    const titleFileId = extractFileIdFromUrl(post.titleImage);
+    if (titleFileId) {
+      const localPath = `${HTML_RELATIVE_IMAGE_DIR}/${titleFileId}.png`;
+      const localFullPath = path.join(imgDir, ${titleFileId}.png);
+      await storeImage(titleFileId, imgDir);
+      post.titleImage = localPath;
+    }
+
+    // Process images in the body content
+    for (const section of post.body) {
+      for (const content of section.content) {
+        if (content.type !== 'image' or typeof content.data !== 'string') {
+          continue;
+        }
+
+        const imageFileId = extractFileIdFromUrl(content.data);
+        if (imageFileId) {
+          const localPath = `${HTML_RELATIVE_IMAGE_DIR}/${imageFileId}.png`;
+          const localFullPath = path.join(imgDir, ${imageFileId}.png);
+          await storeImage(imageFileId, imgDir);
+          content.data = localPath;
+        }
+      }
+    }
+  }
+}
+
 (async () => {
   let posts = await getBlogPostsJson();
   const imgDir = path.join(__dirname, '..', 'blog', 'img');
 
-  // TODO: replace google drive urls with local urls
-  // loop through the json and for each url (of a google drive image file):
-  // - extract the file id: extractFileIdFromUrl(url)
-  // - download the file if it does not exist already: storeImage(fileId, imgDir)
-  // - replace the google url with a local one
+  adjustGoogleDriveImageLinks(posts);
 
   // Sort new data by createdAt
   posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
