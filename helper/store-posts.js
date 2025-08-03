@@ -22,7 +22,7 @@ function adjustGoogleDriveImageLinks(posts) {
     // Process images in the body content
     for (const section of post.body) {
       for (const content of section.content) {
-        if (content.type !== 'image' or typeof content.data !== 'string') {
+        if (content.type !== 'image' || typeof content.data !== 'string') {
           continue;
         }
 
