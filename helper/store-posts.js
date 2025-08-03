@@ -15,7 +15,7 @@ function adjustGoogleDriveImageLinks(posts) {
     if (titleFileId) {
       const localPath = `${HTML_RELATIVE_IMAGE_DIR}/${titleFileId}.png`;
       const localFullPath = path.join(imgDir, `${titleFileId}.png`);
-      await storeImage(titleFileId, imgDir);
+      storeImage(titleFileId, imgDir);
       post.titleImage = localPath;
     }
 
@@ -30,7 +30,7 @@ function adjustGoogleDriveImageLinks(posts) {
         if (imageFileId) {
           const localPath = `${HTML_RELATIVE_IMAGE_DIR}/${imageFileId}.png`;
           const localFullPath = path.join(imgDir, `${imageFileId}.png`);
-          await storeImage(imageFileId, imgDir);
+          storeImage(imageFileId, imgDir);
           content.data = localPath;
         }
       }
