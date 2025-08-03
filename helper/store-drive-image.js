@@ -41,7 +41,9 @@ async function storeImage(fileId, outputDir) {
 }
 
 function extractFileIdFromUrl(url) {
-  const match = url.match(/\/d\/([a-zA-Z0-9_-]{25,})/);
+  const match = url.match(
+    /drive\.google\.com.*(?:\/d\/|id=)([a-zA-Z0-9_-]{25,})/
+  );
   return match ? match[1] : null;
 }
 
