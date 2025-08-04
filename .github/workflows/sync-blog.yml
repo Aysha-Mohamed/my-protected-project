@@ -2,9 +2,15 @@ name: Sync Blog Posts from Drive
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
 
 permissions:
   contents: write
+
+concurrency:
+  group: sync-blog
+  cancel-in-progress: false
 
 jobs:
   read-docs:
