@@ -2,10 +2,10 @@
   {
     "id": "1s3mj_nXUS1A-8OOIDQsFhZFMzuxiqc2wjPDoP6DXT1U",
     "createdAt": "2025-08-04T20:57:50.908Z",
-    "modifiedAt": "2025-08-04T21:19:49.111Z",
+    "modifiedAt": "2025-08-04T21:53:08.758Z",
     "title": "Foxsy AI Featured on Binance: Telegram Gaming Takes Center Stage",
-    "titleImage": "https://pbs.twimg.com/media/Gvj_MXPXgAAGnQz?format=jpg&name=small",
-    "excerpt": "We’re excited to announce a major milestone for Foxsy AI–as our project was recently spotlighted on Binance. The article explores how we’re helping redefine the future of gaming on Telegram by combining artificial intelligence, blockchain technology, and user-centric design. Featured on Binance",
+    "titleImage": "https://www.binance.com/en/square/post/27731292807106",
+    "excerpt": "",
     "tags": [
       "Telegram Gaming",
       "Web3 Games",
@@ -15,50 +15,7 @@
       "Token Utility",
       "Blockchain Games"
     ],
-    "body": [
-      {
-        "heading": "Featured on Binance",
-        "content": [
-          {
-            "type": "paragraph",
-            "data": "We're thrilled to share that Foxsy AI was recently featured on Binance in an article titled, “Foxsy AI and the Rise of Telegram Gaming: Meet FoxKeeper.” This feature by one of the most influential platforms in the world highlights the growing relevance of Telegram-native gaming and the innovative role Foxsy AI is playing at its forefront."
-          },
-          {
-            "type": "paragraph",
-            "data": "In this article, FoxKeeper is noted as more than a casual mini-game, as it’s a gateway into a larger ecosystem that blends AI, blockchain, and user-first design. Players can earn $FOXSY tokens through contests, referrals, and climbing the leaderboards. Have you played {link1} yet?",
-            "links": [
-              {
-                "id": "link1",
-                "text": "FoxKeeper",
-                "url": "https://foxkeeper.ai/"
-              }
-            ]
-          },
-          {
-            "type": "paragraph",
-            "data": "The recent article also teases what’s coming next for Foxsy AI: {link1}, our upcoming AI-powered soccer strategy game where players will train intelligent agents and compete for token-based victories. Set to launch in Q3 2025, FoxLeague extends our mission to create smarter, more dynamic gameplay through AI and decentralized technology.",
-            "links": [
-              {
-                "id": "link1",
-                "text": "FoxLeague",
-                "url": "https://foxsy.ai/foxleague"
-              }
-            ]
-          },
-          {
-            "type": "paragraph",
-            "data": "To read the full article on Binance, you can find it {link1}.",
-            "links": [
-              {
-                "id": "link1",
-                "text": "here",
-                "url": "https://www.binance.com/en/square/post/27731292807106"
-              }
-            ]
-          }
-        ]
-      }
-    ]
+    "body": []
   },
   {
     "id": "1trOrUb810eU35OEGo_uJmAn7V6eQobj0jLRE9UvILVk",
