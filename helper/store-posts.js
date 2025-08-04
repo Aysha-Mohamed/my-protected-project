@@ -6,8 +6,13 @@ const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
+
+
 async function adjustGoogleDriveImageLinks(posts, blogDir) {
   const imgDir = path.join(blogDir, 'img');
+  if (!fs.existsSync(imgDir)) {
+  fs.mkdirSync(imgDir, { recursive: true });
+}
 
   for (const post of posts) {
     // Process titleImage if it's a Google Drive URL
