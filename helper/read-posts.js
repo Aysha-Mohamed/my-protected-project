@@ -87,6 +87,11 @@ function parseGoogleDoc(jsonData, file) {
           .substring("tags:".length)
           .split(",")
           .map(tag => tag.trim());
+
+          currentSection = {
+            heading: null,
+            content: []
+          };
       } else if (getUrlFromPara(para)) {
         result.titleImage = getUrlFromPara(para);
       } else {
@@ -103,7 +108,7 @@ function parseGoogleDoc(jsonData, file) {
 
     if (state === "body") {
       if (namedStyle === "HEADING_1") {
-        if (currentSection) {
+        if (currentSection && currentSection.content.length > 0) {
           result.body.push(currentSection);
         }
         currentSection = {
