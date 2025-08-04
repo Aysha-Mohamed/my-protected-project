@@ -88,10 +88,17 @@ function parseGoogleDoc(jsonData, file) {
           .split(",")
           .map(tag => tag.trim());
 
-          currentSection = {
-            heading: null,
-            content: []
-          };
+        currentSection = {
+          heading: null,
+          content: []
+        };
+
+        if (paragraphBuffer.length) {
+          result.excerpt = paragraphBuffer.join(" ");
+        }
+
+        state = "body";
+        continue;
       } else if (getUrlFromPara(para)) {
         result.titleImage = getUrlFromPara(para);
       } else {
