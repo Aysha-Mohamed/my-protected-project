@@ -2,7 +2,7 @@ const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
 class GoogleHelper {
-  constructor(keyFile = 'key.json') {
+  constructor(keyFile) {
     this.auth = new JWT({
       keyFile,
       scopes: [
@@ -63,4 +63,20 @@ class GoogleHelper {
   }
 }
 
-module.exports = GoogleHelper;
+let instance = null;
+
+function initGoogleHelper(keyFile = 'key.json') {
+  if (!instance) {
+    instance = new GoogleHelper(keyFile);
+  }
+  return instance;
+}
+
+function getGoogleHelper() {
+  if (!instance) {
+    throw new Error('GoogleHelper not initialized. Call initGoogleHelper(keyFile) first.');
+  }
+  return instance;
+}
+
+module.exports = { initGoogleHelper, getGoogleHelper };
