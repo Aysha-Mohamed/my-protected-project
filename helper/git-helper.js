@@ -40,7 +40,7 @@ class GitHelper {
 
   hasChanges() {
     try {
-      const output = this.run('git status --porcelain').toString().trim();
+      const output = this.run('status --porcelain').toString().trim();
       return output.length > 0;
     } catch (err) {
       console.error('❌ Failed to check for Git changes:', err.message);
