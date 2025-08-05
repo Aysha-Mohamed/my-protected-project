@@ -48,6 +48,15 @@ class GoogleHelper {
     return data;
   }
 
+  async downloadFile(fileId) {
+    const res = await this.drive.files.get({
+      fileId,
+      alt: 'media',
+    }, { responseType: 'arraybuffer' });
+  
+    return Buffer.from(res.data);
+  }
+
   async getFileVersion(fileId) {
     const { data } = await this.drive.files.get({
       fileId,
