@@ -1,16 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { google } = require('googleapis');
-const { JWT } = require('google-auth-library');
-
-function initGoogleDrive() {
-  const auth = new JWT({
-    keyFile: 'key.json',
-    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  });
-
-  return google.drive({ version: 'v3', auth });
-}
+const { getGoogleHelper } = require('../googleHelper'); // Adjust path as needed
 
 async function storeImage(fileId, outputDir) {
   if (!fileId || typeof fileId !== 'string' || !fileId.match(/^[a-zA-Z0-9_-]{25,}$/)) {
@@ -25,21 +15,19 @@ async function storeImage(fileId, outputDir) {
 
   if (fs.existsSync(destPath)) {
     console.log(`ℹ️ Skipping ${fileId}, file already exists.`);
-    return destPath; // Return existing path to be consistent
+    return destPath;
   }
 
-  const drive = initGoogleDrive();
+  const googleHelper = getGoogleHelper();
 
   try {
-    const res = await drive.files.get(
-      { fileId, alt: 'media' },
-      { responseType: 'stream' }
-    );
+    // Use helper's downloadFileStream method to get a readable stream
+    const stream = await googleHelper.downloadFileStream(fileId);
 
     return new Promise((resolve, reject) => {
       const dest = fs.createWriteStream(destPath);
 
-      res.data
+      stream
         .on('end', () => {
           console.log(`✅ Downloaded ${fileId} to ${destPath}`);
           resolve(destPath);
