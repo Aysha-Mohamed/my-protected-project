@@ -47,11 +47,11 @@ class GitHelper {
     try {
       const output = this.run('status --porcelain', cwd);
       const status = output.toString().trim();
-      const changedTrackedFiles = status
+      const anyChange = status
         .split('\n')
-        .filter(line => line && !line.startsWith('??'));
+        .filter(line => line.trim() !== '').length > 0;
 
-      return changedTrackedFiles.length > 0;
+      return anyChange;
     } catch (err) {
       console.error('❌ Failed to check for Git changes:', err.message);
       return false;
@@ -63,10 +63,10 @@ class GitHelper {
 
     this.run(`config user.name "${this.name}"`);
     this.run(`config user.email "${this.email}"`);
-    this.run('add .');
+    this.run('add .', cwd);
 
     try {
-      this.run(`commit -m "${message}"`);
+      this.run(`commit -m "${message}"`, cwd);
     } catch {
       console.log('ℹ️ No changes to commit.');
       return;
