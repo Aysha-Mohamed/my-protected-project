@@ -1,41 +1,33 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 const { getBlogPostsJson } = require('./read-posts');
 const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
 const { initGoogleHelper } = require('./google-helper');
+const GitHelper = require('./git-helper');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
-
-
 
 async function adjustGoogleDriveImageLinks(posts, blogDir) {
   const imgDir = path.join(blogDir, 'img');
   if (!fs.existsSync(imgDir)) {
-  fs.mkdirSync(imgDir, { recursive: true });
-}
+    fs.mkdirSync(imgDir, { recursive: true });
+  }
 
   for (const post of posts) {
-    // Process titleImage if it's a Google Drive URL
     const titleFileId = extractFileIdFromUrl(post.titleImage);
     if (titleFileId) {
       const localPath = `${HTML_RELATIVE_IMAGE_DIR}/${titleFileId}.png`;
-      const localFullPath = path.join(imgDir, `${titleFileId}.png`);
       await storeImage(titleFileId, imgDir);
       post.titleImage = localPath;
     }
 
-    // Process images in the body content
     for (const section of post.body) {
       for (const content of section.content) {
-        if (content.type !== 'image' || typeof content.data !== 'string') {
-          continue;
-        }
+        if (content.type !== 'image' || typeof content.data !== 'string') continue;
 
         const imageFileId = extractFileIdFromUrl(content.data);
         if (imageFileId) {
           const localPath = `${HTML_RELATIVE_IMAGE_DIR}/${imageFileId}.png`;
-          const localFullPath = path.join(imgDir, `${imageFileId}.png`);
           await storeImage(imageFileId, imgDir);
           content.data = localPath;
         }
@@ -45,13 +37,16 @@ async function adjustGoogleDriveImageLinks(posts, blogDir) {
 }
 
 (async () => {
-  const googleHelper = initGoogleHelper(); // TO DO: pass an environment variable GOOGLE_KEY_FILE
-  let posts = await getBlogPostsJson();
-  const blogDir = path.join(__dirname, '..', 'blog');
+  const googleHelper = initGoogleHelper();
 
+  // You can pass a repo URL instead to work with an external repo
+  const git = new GitHelper(null, 'automation-bot', 'automation-bot@local');
+  const repoRoot = git.init();
+  const blogDir = path.join(repoRoot, 'blog');
+
+  let posts = await getBlogPostsJson();
   await adjustGoogleDriveImageLinks(posts, blogDir);
 
-  // Sort new data by createdAt
   posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const newJson = JSON.stringify(posts, null, 2);
@@ -60,22 +55,10 @@ async function adjustGoogleDriveImageLinks(posts, blogDir) {
   const fileExists = fs.existsSync(outputPath);
   const oldJson = fileExists ? fs.readFileSync(outputPath, 'utf8') : null;
 
-  // Commit only if there's a difference
   if (newJson !== oldJson) {
     fs.writeFileSync(outputPath, newJson);
     console.log('✅ blog/posts.json updated.');
-
-    try {
-      execSync('git config user.name "github-actions[bot]"');
-      execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
-      execSync(`git add ${blogDir}`);
-      execSync('git commit -m "Update blog/posts.json from Google Docs"');
-      execSync('git push');
-      console.log('✅ Changes committed and pushed.');
-    } catch (err) {
-      console.error('❌ Git operation failed:', err.message);
-      process.exit(1);
-    }
+    git.commitAndPush('Update blog/posts.json from Google Docs');
   } else {
     console.log('ℹ️ blog/posts.json is up-to-date — no changes to commit.');
   }
