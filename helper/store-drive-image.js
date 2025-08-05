@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { getGoogleHelper } = require('../google-helper'); // Adjust path as needed
+const { getGoogleHelper } = require('./google-helper'); // Adjust path as needed
 
 async function storeImage(fileId, outputDir) {
   if (!fileId || typeof fileId !== 'string' || !fileId.match(/^[a-zA-Z0-9_-]{25,}$/)) {
