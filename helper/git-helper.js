@@ -42,10 +42,10 @@ class GitHelper {
   }
 
   hasChanges(dir = '') {
-    const cwd = path.join(this.repoPath, dir);
+    const filterDir = dir || `-- ${dir}`
     
     try {
-      const output = this.run('status --porcelain', cwd);
+      const output = this.run(`status --porcelain ${filterDir}`);
       const status = output.toString().trim();
       const anyChange = status
         .split('\n')
