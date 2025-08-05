@@ -52,10 +52,7 @@ async function adjustGoogleDriveImageLinks(posts, blogDir) {
   const newJson = JSON.stringify(posts, null, 2);
   const outputPath = path.join(blogDir, 'posts.json');
 
-  const fileExists = fs.existsSync(outputPath);
-  const oldJson = fileExists ? fs.readFileSync(outputPath, 'utf8') : null;
-
-  if (newJson !== oldJson) {
+  if (git.hasChanges()) {
     fs.writeFileSync(outputPath, newJson);
     console.log('✅ blog/posts.json updated.');
     git.commitAndPush('Update blog/posts.json from Google Docs');
