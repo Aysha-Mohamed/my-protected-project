@@ -40,7 +40,7 @@ class GitHelper {
 
   hasChanges() {
     try {
-      const output = this.git('status --porcelain');
+      const output = this.run('status --porcelain');
       const status = output.toString().trim();
       const changedTrackedFiles = status
         .split('\n')
