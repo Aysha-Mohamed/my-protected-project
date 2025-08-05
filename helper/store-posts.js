@@ -7,8 +7,7 @@ const GitHelper = require('./git-helper');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
-async function adjustGoogleDriveImageLinks(posts, blogDir) {
-  const imgDir = path.join(blogDir, 'img');
+async function adjustGoogleDriveImageLinks(posts, imgDir) {
   if (!fs.existsSync(imgDir)) {
     fs.mkdirSync(imgDir, { recursive: true });
   }
@@ -37,15 +36,18 @@ async function adjustGoogleDriveImageLinks(posts, blogDir) {
 }
 
 (async () => {
+  const blogDirName = 'blog';
+  const imgDirName = 'img';
   const googleHelper = initGoogleHelper();
 
   // You can pass a repo URL instead to work with an external repo
   const git = new GitHelper(null, 'automation-bot', 'automation-bot@local');
   const repoRoot = git.init();
-  const blogDir = path.join(repoRoot, 'blog');
+  const blogDir = path.join(repoRoot, blogDirName);
+  const imgDir = path.join(blogDir, imgDirName);
 
   let posts = await getBlogPostsJson();
-  await adjustGoogleDriveImageLinks(posts, blogDir);
+  await adjustGoogleDriveImageLinks(posts, imgDir);
 
   posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
