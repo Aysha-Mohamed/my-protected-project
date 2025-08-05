@@ -38,13 +38,17 @@ class GitHelper {
     return execSync(`git ${cmd}`, { cwd, stdio: 'inherit' });
   }
 
-  hasChanges() {
+  hasChanges(dir = '') {
+    const cwd = path.join(this.repoPath, dir);
+    
     try {
-      const output = this.run('status --porcelain');
+      const output = this.run('status --porcelain', cwd);
+      console.log(typeof output);
       const status = output.toString().trim();
       const changedTrackedFiles = status
         .split('\n')
         .filter(line => line && !line.startsWith('??'));
+
       return changedTrackedFiles.length > 0;
     } catch (err) {
       console.error('❌ Failed to check for Git changes:', err.message);
@@ -52,7 +56,9 @@ class GitHelper {
     }
   }
 
-  commitAndPush(message) {
+  commitAndPush(message, dir = '') {
+    const cwd = path.join(this.repoPath, dir);
+
     this.run(`config user.name "${this.name}"`);
     this.run(`config user.email "${this.email}"`);
     this.run('add .');
