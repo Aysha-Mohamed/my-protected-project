@@ -40,8 +40,12 @@ class GitHelper {
 
   hasChanges() {
     try {
-      const output = this.run('status --porcelain').toString().trim();
-      return output.length > 0;
+      const output = this.git('status --porcelain');
+      const status = output.toString().trim();
+      const changedTrackedFiles = status
+        .split('\n')
+        .filter(line => line && !line.startsWith('??'));
+      return changedTrackedFiles.length > 0;
     } catch (err) {
       console.error('❌ Failed to check for Git changes:', err.message);
       return false;
