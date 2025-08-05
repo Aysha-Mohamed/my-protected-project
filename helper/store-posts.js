@@ -3,7 +3,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { getBlogPostsJson } = require('./read-posts');
 const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
-const { initGoogleHelper } = require('./googleHelper');
+const { initGoogleHelper } = require('./google-helper');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
