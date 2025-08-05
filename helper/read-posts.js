@@ -1,8 +1,7 @@
-const { google } = require('googleapis');
-const { JWT } = require('google-auth-library');
+const { getGoogleHelper } = require('./googleHelper');
 
-const NEW_DOC_COOLDOWN_MS = Number(300000 || 5 * 60 * 1000); // 5 min
-const RECENT_EDIT_MS      = Number(180000|| 3  * 60 * 1000);  
+const NEW_DOC_COOLDOWN_MS = 300000; // 5 min
+const RECENT_EDIT_MS = 180000;      // 3 min
 
 function parseGoogleDoc(jsonData, file) {
   const result = {
@@ -140,8 +139,7 @@ function parseGoogleDoc(jsonData, file) {
         }
       } else {
         const { text, links } = extractParagraphTextAndLinks(para);
-        
-        // Check if this is a single {linkX} placeholder and the link text implies it's an image
+
         if (
           links &&
           links.length === 1 &&
@@ -169,9 +167,8 @@ function parseGoogleDoc(jsonData, file) {
   return result;
 }
 
-// ---------------- Drive/Docs helpers & guards ----------------
 function shouldProcessFile(file, nowMs) {
-  const createdMs  = new Date(file.createdTime).getTime();
+  const createdMs = new Date(file.createdTime).getTime();
   const modifiedMs = new Date(file.modifiedTime).getTime();
 
   if (nowMs - createdMs < NEW_DOC_COOLDOWN_MS) return false; // too new
@@ -179,65 +176,20 @@ function shouldProcessFile(file, nowMs) {
   return true;
 }
 
-async function versionUnchanged(drive, fileId, beforeVersion) {
-  const { data } = await drive.files.get({
-    fileId,
-    fields: 'version',
-    supportsAllDrives: true,
-  });
-  return data.version === beforeVersion;
-}
-
-async function listDocFilesInFolder(drive, folderId) {
-  const q = [
-    `'${folderId}' in parents`,
-    `mimeType = 'application/vnd.google-apps.document'`,
-    `trashed = false`
-  ].join(' and ');
-
-  let files = [];
-  let pageToken;
-  do {
-    const { data } = await drive.files.list({
-      q,
-      pageSize: 1000,
-      pageToken,
-      fields: 'nextPageToken, files(id, name, createdTime, modifiedTime, version)',
-      supportsAllDrives: true,
-      includeItemsFromAllDrives: true,
-      corpora: 'allDrives',
-    });
-    files = files.concat(data.files || []);
-    pageToken = data.nextPageToken;
-  } while (pageToken);
-
-  return files;
-}
-
-
 async function getBlogPostsJson() {
-  const auth = new JWT({
-    keyFile: 'key.json',
-    scopes: [
-      'https://www.googleapis.com/auth/drive.readonly',
-      'https://www.googleapis.com/auth/documents.readonly',
-    ],
-  });
-
-  const drive = google.drive({ version: 'v3', auth });
-  const docs = google.docs({ version: 'v1', auth });
+  const googleHelper = getGoogleHelper(); // get singleton instance (already initialized)
 
   const folderId = '15pv_L5uzLyA5mC7jlejlj1doe21GH1WU';
   const nowMs = Date.now();
 
-   // List files
-  const files = await listDocFilesInFolder(drive, folderId);
+  // List files using helper
+  const files = await googleHelper.listDocFilesInFolder(folderId);
   if (!files.length) {
     console.warn('No Google Docs found in the folder.');
     return [];
   }
 
-  // Apply guards and extract
+  // Filter eligible files
   const eligible = files.filter(f => shouldProcessFile(f, nowMs));
   const posts = [];
 
@@ -245,11 +197,12 @@ async function getBlogPostsJson() {
     try {
       const beforeVersion = file.version;
 
-      const { data: doc } = await docs.documents.get({ documentId: file.id });
+      // Get document content
+      const doc = await googleHelper.getDocument(file.id);
       const parsed = parseGoogleDoc(doc, file);
 
-      // Race check: ensure it didn't change while reading
-      const unchanged = await versionUnchanged(drive, file.id, beforeVersion);
+      // Ensure version unchanged
+      const unchanged = await googleHelper.versionUnchanged(file.id, beforeVersion);
       if (!unchanged) {
         console.log(`🔁 Skipped ${file.name} (${file.id}): changed during extraction.`);
         continue;
