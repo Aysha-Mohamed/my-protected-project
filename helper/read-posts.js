@@ -1,4 +1,4 @@
-const { getGoogleHelper } = require('./googleHelper');
+const { getGoogleHelper } = require('./google-helper');
 
 const NEW_DOC_COOLDOWN_MS = 300000; // 5 min
 const RECENT_EDIT_MS = 180000;      // 3 min
