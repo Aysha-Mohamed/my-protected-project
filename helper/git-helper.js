@@ -35,7 +35,7 @@ class GitHelper {
 
   run(cmd, cwd = this.repoPath) {
     if (!cwd) throw new Error('Repository path not set. Call init() first.');
-    return execSync(`git ${cmd}`, { cwd, stdio: 'inherit' });
+    return execSync(`git ${cmd}`, { cwd );
   }
 
   hasChanges(dir = '') {
@@ -43,7 +43,6 @@ class GitHelper {
     
     try {
       const output = this.run('status --porcelain', cwd);
-      console.log(typeof output);
       const status = output.toString().trim();
       const changedTrackedFiles = status
         .split('\n')
