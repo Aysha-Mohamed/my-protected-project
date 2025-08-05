@@ -3,6 +3,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { getBlogPostsJson } = require('./read-posts');
 const { storeImage, extractFileIdFromUrl } = require('./store-drive-image');
+const { initGoogleHelper } = require('./googleHelper');
 
 const HTML_RELATIVE_IMAGE_DIR = '/posts/img';
 
@@ -44,6 +45,7 @@ async function adjustGoogleDriveImageLinks(posts, blogDir) {
 }
 
 (async () => {
+  const googleHelper = initGoogleHelper(); // TO DO: pass an environment variable GOOGLE_KEY_FILE
   let posts = await getBlogPostsJson();
   const blogDir = path.join(__dirname, '..', 'blog');
 
