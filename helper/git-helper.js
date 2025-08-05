@@ -35,7 +35,10 @@ class GitHelper {
 
   run(cmd, cwd = this.repoPath) {
     if (!cwd) throw new Error('Repository path not set. Call init() first.');
-    return execSync(`git ${cmd}`, { cwd );
+    const result = execSync(`git ${cmd}`, { cwd, encoding: 'utf-8' });
+    process.stdout.write(result);
+
+    return result.trim();
   }
 
   hasChanges(dir = '') {
