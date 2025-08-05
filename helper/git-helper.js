@@ -28,7 +28,7 @@ class GitHelper {
     this.repoPath = tempDir;
 
     console.log(`Cloning ${this.repoUrl} into ${this.repoPath}...`);
-    this.git(`clone ${this.repoUrl} ${this.repoPath}`, process.cwd());
+    this.run(`clone ${this.repoUrl} ${this.repoPath}`, process.cwd());
 
     return this.repoPath;
   }
@@ -36,6 +36,16 @@ class GitHelper {
   run(cmd, cwd = this.repoPath) {
     if (!cwd) throw new Error('Repository path not set. Call init() first.');
     return execSync(`git ${cmd}`, { cwd, stdio: 'inherit' });
+  }
+
+  hasChanges() {
+    try {
+      const output = this.run('git status --porcelain').toString().trim();
+      return output.length > 0;
+    } catch (err) {
+      console.error('❌ Failed to check for Git changes:', err.message);
+      return false;
+    }
   }
 
   commitAndPush(message) {
